@@ -10,7 +10,7 @@ public class ValidateHomeIT {
 	public void testHomePageIT() throws Exception {
 	    try (final WebClient webClient = new WebClient()) {
 	        final HtmlPage page = webClient.getPage("http://localhost:8080/course-web/courseDisplay.jsp");
-	        Assert.assertEquals("HtmlUnit - Welcome to HtmlUnit", page.getTitleText());
+	        Assert.assertEquals("courseDisplay", page.getTitleText());
 	
 //	        final String pageAsXml = page.asXml();
 //	        Assert.assertTrue(pageAsXml.contains("<body class=\"composite\">"));

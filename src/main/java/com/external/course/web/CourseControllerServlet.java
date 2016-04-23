@@ -3,15 +3,11 @@ package com.external.course.web;
 import java.io.IOException;
 import java.util.List;
 
-import javax.annotation.Resource;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceUnit;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.transaction.UserTransaction;
 
 import com.example.course.entity.Course;
 import com.example.course.entity.controller.CourseManager;
@@ -22,38 +18,46 @@ import com.example.course.entity.controller.CourseManager;
 @WebServlet("/CourseControllerServlet")
 public class CourseControllerServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	@PersistenceUnit
-	protected EntityManagerFactory emf;
-	@Resource
-	protected UserTransaction utx;
-       
     /**
      * @see HttpServlet#HttpServlet()
      */
     public CourseControllerServlet() {
-        super();
+    	super();
+    	CourseManager courseManager = CourseManager.getCourseManager();
         // TODO Auto-generated constructor stub
+    	Course course = new Course();
+    	course.setCode("E650");
+    	course.setDescription("Enterprise Java Development");
+    	course.setDuration(2);
+    	course.setFee(1000);
+    	try {
+			courseManager.createCourse(course);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
     }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		CourseManager manager = new CourseManager();
-		manager.setEmf(emf);
-		manager.setUtx(utx);
+    	CourseManager courseManager = CourseManager.getCourseManager();
 		String create = request.getParameter("create");
 		String read = request.getParameter("read");
 		String update = request.getParameter("update");
 		String delete = request.getParameter("delete");
 		String code = request.getParameter("code");
-		Course course = null;
+			Course course = null;
 		String message = "";
 		boolean foundCourse = false;
 		try {
-			List<Course> courses = manager.getCourseByCode(code);
-			if (courses.size() > 0) {
+			List<Course> courses = courseManager.getCourseByCode(code);
+			if (courses.size()>0) {
 				course = courses.get(0);
+			}
+			if (course != null) {
 				foundCourse = true;
 			}
 			else {
@@ -66,8 +70,8 @@ public class CourseControllerServlet extends HttpServlet {
 				}
 				else {
 					course = getCourse(request, course);		
-					manager.createCourse(course);
 					message = "Course created";
+					courseManager.createCourse(course);
 				}
 			}
 			else if (read != null) {
@@ -81,7 +85,6 @@ public class CourseControllerServlet extends HttpServlet {
 			else if (update != null) {
 				if (foundCourse) {
 					course = getCourse(request, course);
-					manager.updateCourse(course);
 					message = "Course updated";
 				}
 				else {
@@ -90,7 +93,7 @@ public class CourseControllerServlet extends HttpServlet {
 			}
 			else if (delete != null) {
 				if (foundCourse) {
-					manager.deleteCourse(course);
+					courseManager.deleteCourse(course);
 					message = "Course deleted";
 				}
 				else {
@@ -117,7 +120,6 @@ public class CourseControllerServlet extends HttpServlet {
 		course.setDuration(Integer.parseInt(request.getParameter("duration")));
 		course.setFee(Integer.parseInt(request.getParameter("fee")));
 		return course;
-}
-
+	}
 
 }
